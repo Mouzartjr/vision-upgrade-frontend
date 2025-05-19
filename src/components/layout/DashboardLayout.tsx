@@ -1,27 +1,21 @@
-
 import React, { useState } from "react";
 import { Search, Menu, Bell, RefreshCcw, X, Truck, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  children
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  return (
-    <div className="h-screen flex flex-col">
+  return <div className="h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="flex justify-between items-center px-4 h-16">
           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-md hover:bg-gray-100"
-            >
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100">
               <Menu size={20} />
             </button>
             <div className="flex items-center">
@@ -46,19 +40,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className={cn(
-          "bg-sidebar w-64 flex flex-col transition-all duration-300 ease-in-out",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-          "fixed md:static left-0 top-16 bottom-0 z-40 md:z-0"
-        )}>
+        <aside className={cn("bg-sidebar w-64 flex flex-col transition-all duration-300 ease-in-out", sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0", "fixed md:static left-0 top-16 bottom-0 z-40 md:z-0")}>
           <div className="flex flex-col h-full p-4 text-white space-y-6">
             <div className="md:hidden flex justify-end">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setSidebarOpen(false)}
-                className="text-white hover:bg-sidebar-accent"
-              >
+              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="text-white hover:bg-sidebar-accent">
                 <X size={18} />
               </Button>
             </div>
@@ -101,30 +86,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             </nav>
             
             <div className="mt-auto">
-              <div className="bg-sidebar-accent p-4 rounded-lg">
-                <h3 className="font-medium mb-2">Precisa de ajuda?</h3>
-                <p className="text-sm text-white/80 mb-3">Entre em contato com o suporte técnico</p>
-                <Button size="sm" className="w-full bg-white text-sidebar hover:bg-gray-100">
-                  Suporte
-                </Button>
-              </div>
+              
             </div>
           </div>
         </aside>
         
         {/* Main content */}
         <main className="flex-1 overflow-auto">
-          {sidebarOpen && (
-            <div 
-              className="fixed inset-0 bg-black/20 z-30 md:hidden" 
-              onClick={() => setSidebarOpen(false)}
-            ></div>
-          )}
+          {sidebarOpen && <div className="fixed inset-0 bg-black/20 z-30 md:hidden" onClick={() => setSidebarOpen(false)}></div>}
           {children}
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default DashboardLayout;
