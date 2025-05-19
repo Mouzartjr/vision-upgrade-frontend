@@ -1,19 +1,15 @@
-
 import React, { useState } from "react";
 import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
   return <div className="h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -33,8 +29,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 </div>
               </div>
               <h1 className="text-xl font-bold">
-                <span className="bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Log</span>
-                <span className="text-gray-800">Tracker</span>
+                <span className="bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Cockpit de</span>
+                <span className="text-gray-800"> Transportes</span>
               </h1>
             </div>
           </div>
@@ -111,5 +107,4 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
     </div>;
 };
-
 export default DashboardLayout;
