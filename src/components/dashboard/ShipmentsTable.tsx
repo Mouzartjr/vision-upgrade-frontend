@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUpDown, Download, Filter, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,77 +20,78 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-interface Shipment {
-  id: string;
-  clientId: string;
-  clientName: string;
-  segment: string;
-  business: string;
-  state: string;
-  city: string;
-  orderNumber: string;
-  type: string;
-  status: string;
-  invoiceNumber: string | null;
-  statusDescription: string;
-  suspensionCode: string;
-  description: string;
-  freight: number;
-  discount: number;
-  grossPrice: number;
-  netWeight: number;
-}
+import { Shipment } from '@/types/shipment';
+import { getAllShipments, searchShipments, sortShipments } from '@/services/shipmentService';
 
 interface ShipmentsTableProps {
-  shipments: Shipment[];
+  shipments?: Shipment[];
 }
 
-const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments }) => {
+const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipments }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<keyof Shipment | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Handle sorting
-  const handleSort = (field: keyof Shipment) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  // Carregar dados na inicialização, se não forem fornecidos
+  useEffect(() => {
+    if (initialShipments) {
+      setShipments(initialShipments);
     } else {
-      setSortField(field);
-      setSortDirection('asc');
+      loadShipments();
+    }
+  }, [initialShipments]);
+
+  const loadShipments = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllShipments();
+      setShipments(data);
+    } catch (error) {
+      console.error('Error loading shipments:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle search filtering
-  const filteredShipments = shipments.filter(shipment => 
-    shipment.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    shipment.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    shipment.clientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    shipment.city.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   // Handle sorting
-  const sortedShipments = [...filteredShipments].sort((a, b) => {
-    if (!sortField) return 0;
+  const handleSort = async (field: keyof Shipment) => {
+    const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortField(field);
+    setSortDirection(newDirection);
     
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-    
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' 
-        ? aValue.localeCompare(bValue) 
-        : bValue.localeCompare(aValue);
+    try {
+      const sorted = await sortShipments(shipments, field, newDirection);
+      setShipments(sorted);
+    } catch (error) {
+      console.error('Error sorting shipments:', error);
+    }
+  };
+
+  // Handle search
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === '') {
+      loadShipments();
+      return;
     }
     
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    try {
+      const results = await searchShipments(query);
+      setShipments(results);
+    } catch (error) {
+      console.error('Error searching shipments:', error);
     }
-    
-    return 0;
-  });
+  };
+
+  const handleRefresh = () => {
+    loadShipments();
+  };
 
   const getStatusBadge = (status: string) => {
     switch(status) {
+      case 'Empenhar Pedido':
       case 'Empenhar Pedido / LogA':
         return <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">Pendente</Badge>;
       case 'Em Trânsito':
@@ -120,7 +121,7 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments }) => {
           <Input
             placeholder="Buscar por cliente, pedido, ID..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-10 bg-gray-50 border-gray-200"
           />
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -128,7 +129,7 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments }) => {
           </div>
         </div>
         <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
-          <Button variant="outline" size="sm" className="flex items-center gap-1 text-sm">
+          <Button variant="outline" size="sm" className="flex items-center gap-1 text-sm" onClick={handleRefresh}>
             <RefreshCcw size={14} />
             <span>Atualizar</span>
           </Button>
@@ -192,8 +193,14 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedShipments.length > 0 ? (
-              sortedShipments.map((shipment) => (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={16} className="text-center py-8 text-gray-500">
+                  Carregando dados...
+                </TableCell>
+              </TableRow>
+            ) : shipments.length > 0 ? (
+              shipments.map((shipment) => (
                 <TableRow 
                   key={`${shipment.clientId}-${shipment.orderNumber}`}
                   className="hover:bg-gray-50 cursor-pointer transition-colors"
