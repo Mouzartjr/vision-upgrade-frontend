@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { ArrowUpDown, Download, Filter, RefreshCcw } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ArrowUpDown, Download, Filter, RefreshCcw, ListFilter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +21,8 @@ import {
 } from "@/components/ui/pagination";
 import { Shipment } from '@/types/shipment';
 import { getAllShipments, searchShipments, sortShipments } from '@/services/shipmentService';
+import FilterDropdown from './FilterDropdown';
+import { useToast } from "@/hooks/use-toast";
 
 interface ShipmentsTableProps {
   shipments?: Shipment[];
@@ -32,12 +33,23 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
   const [sortField, setSortField] = useState<keyof Shipment | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
+  // Filters state
+  const [filters, setFilters] = useState<Record<string, string[]>>({
+    status: [],
+    segment: [],
+    business: [],
+    state: [],
+  });
 
   // Carregar dados na inicialização, se não forem fornecidos
   useEffect(() => {
     if (initialShipments) {
       setShipments(initialShipments);
+      setFilteredShipments(initialShipments);
     } else {
       loadShipments();
     }
@@ -48,11 +60,95 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
     try {
       const data = await getAllShipments();
       setShipments(data);
+      setFilteredShipments(data);
     } catch (error) {
       console.error('Error loading shipments:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Extract unique values for each filter column
+  const filterOptions = useMemo(() => {
+    return {
+      status: [...new Set(shipments.map(s => s.statusDescription))],
+      segment: [...new Set(shipments.map(s => s.segment))],
+      business: [...new Set(shipments.map(s => s.business))],
+      state: [...new Set(shipments.map(s => s.state))],
+    };
+  }, [shipments]);
+
+  // Apply all filters
+  useEffect(() => {
+    let result = [...shipments];
+    
+    // Apply filters
+    Object.entries(filters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        result = result.filter(shipment => 
+          values.includes(shipment[key as keyof Shipment] as string)
+        );
+      }
+    });
+    
+    // Apply search query if present
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(shipment => 
+        shipment.clientName.toLowerCase().includes(query) ||
+        shipment.orderNumber.toLowerCase().includes(query) ||
+        shipment.clientId.toLowerCase().includes(query) ||
+        (shipment.invoiceNumber && shipment.invoiceNumber.toLowerCase().includes(query))
+      );
+    }
+    
+    setFilteredShipments(result);
+  }, [filters, shipments, searchQuery]);
+
+  // Handle filter changes
+  const handleFilterChange = (column: string, value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[column] || [];
+      const updatedValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+        
+      return {
+        ...prev,
+        [column]: updatedValues
+      };
+    });
+  };
+
+  // Clear filters for a specific column
+  const clearColumnFilters = (column: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [column]: []
+    }));
+    
+    toast({
+      title: "Filtros limpos",
+      description: `Os filtros de ${column} foram removidos.`,
+      duration: 2000,
+    });
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setFilters({
+      status: [],
+      segment: [],
+      business: [],
+      state: [],
+    });
+    setSearchQuery('');
+    
+    toast({
+      title: "Filtros limpos",
+      description: "Todos os filtros foram removidos.",
+      duration: 2000,
+    });
   };
 
   // Handle sorting
@@ -62,31 +158,21 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
     setSortDirection(newDirection);
     
     try {
-      const sorted = await sortShipments(shipments, field, newDirection);
-      setShipments(sorted);
+      const sorted = await sortShipments(filteredShipments, field, newDirection);
+      setFilteredShipments(sorted);
     } catch (error) {
       console.error('Error sorting shipments:', error);
     }
   };
 
   // Handle search
-  const handleSearch = async (query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim() === '') {
-      loadShipments();
-      return;
-    }
-    
-    try {
-      const results = await searchShipments(query);
-      setShipments(results);
-    } catch (error) {
-      console.error('Error searching shipments:', error);
-    }
   };
 
   const handleRefresh = () => {
     loadShipments();
+    clearAllFilters();
   };
 
   const getStatusBadge = (status: string) => {
@@ -114,6 +200,8 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
     }).format(value);
   };
 
+  const hasActiveFilters = Object.values(filters).some(arr => arr.length > 0) || searchQuery.trim() !== '';
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -129,6 +217,17 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
           </div>
         </div>
         <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
+          {hasActiveFilters && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1 text-sm text-red-500 hover:text-red-700" 
+              onClick={clearAllFilters}
+            >
+              <ListFilter size={14} />
+              <span>Limpar filtros</span>
+            </Button>
+          )}
           <Button variant="outline" size="sm" className="flex items-center gap-1 text-sm" onClick={handleRefresh}>
             <RefreshCcw size={14} />
             <span>Atualizar</span>
@@ -145,50 +244,118 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
           <TableHeader>
             <TableRow className="bg-gray-50 hover:bg-gray-50">
               <TableHead className="font-medium" onClick={() => handleSort('clientId')}>
-                ID Cliente
-                {sortField === 'clientId' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>ID Cliente</span>
+                  {sortField === 'clientId' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
               <TableHead className="font-medium" onClick={() => handleSort('clientName')}>
-                Razão Social
-                {sortField === 'clientName' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>Razão Social</span>
+                  {sortField === 'clientName' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
-              <TableHead className="font-medium">Segmento</TableHead>
-              <TableHead className="font-medium">Business</TableHead>
-              <TableHead className="font-medium">UF</TableHead>
-              <TableHead className="font-medium">Município</TableHead>
+              <TableHead className="font-medium">
+                <div className="flex items-center justify-between">
+                  <span>Segmento</span>
+                  <FilterDropdown 
+                    title="Segmento"
+                    options={filterOptions.segment}
+                    selectedOptions={filters.segment}
+                    onSelectionChange={(value) => handleFilterChange('segment', value)}
+                    onClearFilters={() => clearColumnFilters('segment')}
+                  />
+                </div>
+              </TableHead>
+              <TableHead className="font-medium">
+                <div className="flex items-center justify-between">
+                  <span>Business</span>
+                  <FilterDropdown 
+                    title="Business"
+                    options={filterOptions.business}
+                    selectedOptions={filters.business}
+                    onSelectionChange={(value) => handleFilterChange('business', value)}
+                    onClearFilters={() => clearColumnFilters('business')}
+                  />
+                </div>
+              </TableHead>
+              <TableHead className="font-medium">
+                <div className="flex items-center justify-between">
+                  <span>UF</span>
+                  <FilterDropdown 
+                    title="UF"
+                    options={filterOptions.state}
+                    selectedOptions={filters.state}
+                    onSelectionChange={(value) => handleFilterChange('state', value)}
+                    onClearFilters={() => clearColumnFilters('state')}
+                  />
+                </div>
+              </TableHead>
+              <TableHead className="font-medium">
+                <span>Município</span>
+              </TableHead>
               <TableHead className="font-medium" onClick={() => handleSort('orderNumber')}>
-                Número Pedido
-                {sortField === 'orderNumber' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>Número Pedido</span>
+                  {sortField === 'orderNumber' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
-              <TableHead className="font-medium">Tipo</TableHead>
-              <TableHead className="font-medium">Status</TableHead>
-              <TableHead className="font-medium">Número Nota</TableHead>
-              <TableHead className="font-medium">Código Suspensão</TableHead>
-              <TableHead className="font-medium">Descrição</TableHead>
+              <TableHead className="font-medium">
+                <span>Tipo</span>
+              </TableHead>
+              <TableHead className="font-medium">
+                <div className="flex items-center justify-between">
+                  <span>Status</span>
+                  <FilterDropdown 
+                    title="Status"
+                    options={filterOptions.status}
+                    selectedOptions={filters.status}
+                    onSelectionChange={(value) => handleFilterChange('statusDescription', value)}
+                    onClearFilters={() => clearColumnFilters('status')}
+                  />
+                </div>
+              </TableHead>
+              <TableHead className="font-medium">
+                <span>Número Nota</span>
+              </TableHead>
+              <TableHead className="font-medium">
+                <span>Código Suspensão</span>
+              </TableHead>
+              <TableHead className="font-medium">
+                <span>Descrição</span>
+              </TableHead>
               <TableHead className="font-medium text-right" onClick={() => handleSort('freight')}>
-                Frete
-                {sortField === 'freight' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>Frete</span>
+                  {sortField === 'freight' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
-              <TableHead className="font-medium text-right">Desconto</TableHead>
+              <TableHead className="font-medium text-right">
+                <span>Desconto</span>
+              </TableHead>
               <TableHead className="font-medium text-right" onClick={() => handleSort('grossPrice')}>
-                Preço Bruto
-                {sortField === 'grossPrice' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>Preço Bruto</span>
+                  {sortField === 'grossPrice' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
               <TableHead className="font-medium text-right" onClick={() => handleSort('netWeight')}>
-                Peso Líquido
-                {sortField === 'netWeight' && (
-                  <ArrowUpDown size={14} className="ml-1 inline" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span>Peso Líquido</span>
+                  {sortField === 'netWeight' && (
+                    <ArrowUpDown size={14} className="ml-1 inline" />
+                  )}
+                </div>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -199,8 +366,8 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
                   Carregando dados...
                 </TableCell>
               </TableRow>
-            ) : shipments.length > 0 ? (
-              shipments.map((shipment) => (
+            ) : filteredShipments.length > 0 ? (
+              filteredShipments.map((shipment) => (
                 <TableRow 
                   key={`${shipment.clientId}-${shipment.orderNumber}`}
                   className="hover:bg-gray-50 cursor-pointer transition-colors"
