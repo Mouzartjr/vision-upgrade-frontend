@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe, Filter, LayoutDashboard, ShoppingBag, Ship, FileText, Delivery } from "lucide-react";
+import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe, Filter, LayoutDashboard, ShoppingBag, Ship, FileText, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -115,7 +114,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <Delivery size={16} className="text-white" />
+                  <Box size={16} className="text-white" />
                 </div>
                 <span>Entregas</span>
               </a>
