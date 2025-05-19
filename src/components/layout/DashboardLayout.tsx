@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Menu, Bell, RefreshCcw, X } from "lucide-react";
+import { Search, Menu, Bell, RefreshCcw, X, Truck, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -24,14 +24,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             >
               <Menu size={20} />
             </button>
-            <h1 className="text-xl font-bold text-transport-blue">Cockpit de Transportes</h1>
+            <div className="flex items-center">
+              <div className="flex items-center justify-center bg-gradient-to-r from-transport-blue to-transport-blue-dark p-1 rounded-md mr-2">
+                <Truck size={22} className="text-white" />
+                <Package size={14} className="text-white ml-[-8px] mt-[-8px]" />
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">LogTracker</h1>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="icon" className="rounded-full">
               <Bell size={18} />
             </Button>
-            <div className="h-8 w-8 rounded-full bg-transport-blue text-white flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-transport-blue to-transport-blue-dark text-white flex items-center justify-center">
               <span className="font-medium text-sm">AT</span>
             </div>
           </div>
@@ -60,14 +66,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <nav className="space-y-1">
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-transport-blue-light flex items-center justify-center">
-                  <span className="text-xs font-bold">TP</span>
+                  <span className="text-xs font-bold">DB</span>
                 </div>
                 <span className="font-medium">Dashboard</span>
               </a>
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-xs font-bold">PE</span>
+                  <span className="text-xs font-bold">PD</span>
                 </div>
                 <span>Pedidos</span>
               </a>

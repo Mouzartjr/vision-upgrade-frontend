@@ -7,107 +7,107 @@ import ShipmentsTable from '@/components/dashboard/ShipmentsTable';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// Sample data
+// Sample data with generic entries
 const shipmentData = [
   {
     id: '1',
-    clientId: '2983',
-    clientName: 'FARMARIN IND COM LTDA',
+    clientId: '0001',
+    clientName: 'Cliente Exemplo A',
     segment: '',
     business: '',
     state: 'SP',
     city: '',
-    orderNumber: '181163',
+    orderNumber: '100001',
     type: 'SI',
     status: 'pending',
-    invoiceNumber: '555',
-    statusDescription: 'Empenhar Pedido / LogA',
+    invoiceNumber: '001',
+    statusDescription: 'Empenhar Pedido',
     suspensionCode: 'CIF',
     description: '',
     freight: 0,
     discount: 0,
-    grossPrice: 17493,
-    netWeight: 7350
+    grossPrice: 10000,
+    netWeight: 5000
   },
   {
     id: '2',
-    clientId: '88967',
-    clientName: 'PR DISTRIBUIDORA DE PRODUTOS',
+    clientId: '0002',
+    clientName: 'Cliente Exemplo B',
     segment: '',
     business: '',
-    state: 'SP',
+    state: 'RJ',
     city: '',
-    orderNumber: '181761',
+    orderNumber: '100002',
     type: 'SO',
     status: 'in-transit',
-    invoiceNumber: '555',
-    statusDescription: 'Empenhar Pedido / LogA',
-    suspensionCode: 'FOB',
-    description: '',
-    freight: 0,
-    discount: -50,
-    grossPrice: 1075,
-    netWeight: 30
-  },
-  {
-    id: '3',
-    clientId: '79126',
-    clientName: 'BRF S.A',
-    segment: '',
-    business: '',
-    state: 'RS',
-    city: '',
-    orderNumber: '180758',
-    type: 'SI',
-    status: 'delivered',
-    invoiceNumber: '555',
-    statusDescription: 'Empenhar Pedido / LogA',
-    suspensionCode: 'FOB',
-    description: '',
-    freight: 0,
-    discount: 0,
-    grossPrice: 19547,
-    netWeight: 8575
-  },
-  {
-    id: '4',
-    clientId: '181707',
-    clientName: 'SEARA ALIMENTOS',
-    segment: '',
-    business: '',
-    state: 'MS',
-    city: '',
-    orderNumber: '181384',
-    type: 'SI',
-    status: 'in-transit',
-    invoiceNumber: '555',
+    invoiceNumber: '002',
     statusDescription: 'Em Trânsito',
     suspensionCode: 'FOB',
     description: '',
     freight: 0,
     discount: 0,
-    grossPrice: 45811,
-    netWeight: 17150
+    grossPrice: 8500,
+    netWeight: 3000
+  },
+  {
+    id: '3',
+    clientId: '0003',
+    clientName: 'Cliente Exemplo C',
+    segment: '',
+    business: '',
+    state: 'MG',
+    city: '',
+    orderNumber: '100003',
+    type: 'SI',
+    status: 'delivered',
+    invoiceNumber: '003',
+    statusDescription: 'Entregue',
+    suspensionCode: 'FOB',
+    description: '',
+    freight: 0,
+    discount: 0,
+    grossPrice: 15000,
+    netWeight: 7500
+  },
+  {
+    id: '4',
+    clientId: '0004',
+    clientName: 'Cliente Exemplo D',
+    segment: '',
+    business: '',
+    state: 'RS',
+    city: '',
+    orderNumber: '100004',
+    type: 'SI',
+    status: 'in-transit',
+    invoiceNumber: '004',
+    statusDescription: 'Em Trânsito',
+    suspensionCode: 'FOB',
+    description: '',
+    freight: 0,
+    discount: 0,
+    grossPrice: 20000,
+    netWeight: 9000
   },
   {
     id: '5',
-    clientId: '118831',
-    clientName: 'SUPERMERCADO ROSSI NEW FOODS',
+    clientId: '0005',
+    clientName: 'Cliente Exemplo E',
     segment: '',
     business: '',
-    state: 'SP',
+    state: 'PR',
     city: '',
-    orderNumber: '181693',
+    orderNumber: '100005',
     type: 'SO',
     status: 'delivered-partial',
-    invoiceNumber: '555',
+    invoiceNumber: '005',
     statusDescription: 'Entregue Parcial',
     suspensionCode: 'FOB',
     description: '',
     freight: 0,
-    discount: -48,
-    grossPrice: 8604,
-    netWeight: 240
+    discount: 0,
+    grossPrice: 5000,
+    netWeight: 2500
   }
 ];
 
@@ -117,35 +117,35 @@ const Index: React.FC = () => {
       <div className="p-6 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Dashboard de Transportes</h1>
+            <h1 className="text-3xl font-bold text-transport-blue bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Dashboard de Transportes</h1>
             <p className="text-gray-500 mt-1">Acompanhe todos os seus pedidos e entregas em um só lugar</p>
           </div>
           
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Última atualização: 19/05/2025 14:30</span>
-            <Button size="sm" variant="ghost" className="p-1">
-              <RefreshCcw size={16} />
+            <Button size="sm" variant="outline" className="p-1 rounded-full hover:bg-blue-50">
+              <RefreshCcw size={16} className="text-transport-blue" />
             </Button>
           </div>
         </div>
         
-        <div className="h-12 flex items-center px-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="h-auto py-4 flex items-center px-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
           <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <span className="text-sm text-gray-500">Pedidos ativos</span>
-              <h3 className="font-semibold">65</h3>
+              <span className="text-sm font-medium text-gray-600">Pedidos ativos</span>
+              <h3 className="font-semibold text-transport-blue">--</h3>
             </div>
             <div>
-              <span className="text-sm text-gray-500">Entregas hoje</span>
-              <h3 className="font-semibold">12</h3>
+              <span className="text-sm font-medium text-gray-600">Entregas hoje</span>
+              <h3 className="font-semibold text-transport-blue">--</h3>
             </div>
             <div>
-              <span className="text-sm text-gray-500">Valor total</span>
-              <h3 className="font-semibold">R$ 92.530,00</h3>
+              <span className="text-sm font-medium text-gray-600">Valor total</span>
+              <h3 className="font-semibold text-transport-blue">R$ --</h3>
             </div>
             <div>
-              <span className="text-sm text-gray-500">Peso total</span>
-              <h3 className="font-semibold">33.345 kg</h3>
+              <span className="text-sm font-medium text-gray-600">Peso total</span>
+              <h3 className="font-semibold text-transport-blue">-- kg</h3>
             </div>
           </div>
         </div>
