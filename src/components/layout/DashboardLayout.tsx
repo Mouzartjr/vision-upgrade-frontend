@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe, Filter } from "lucide-react";
+import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe, Filter, LayoutDashboard, ShoppingBag, Ship, FileText, Delivery } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -94,35 +94,35 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <nav className="space-y-1">
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-transport-blue-light flex items-center justify-center">
-                  <span className="text-xs font-bold">DB</span>
+                  <LayoutDashboard size={16} className="text-white" />
                 </div>
                 <span className="font-medium">Dashboard</span>
               </a>
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-xs font-bold">PD</span>
+                  <ShoppingBag size={16} className="text-white" />
                 </div>
                 <span>Pedidos</span>
               </a>
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-xs font-bold">FR</span>
+                  <Ship size={16} className="text-white" />
                 </div>
                 <span>Fretes</span>
               </a>
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-xs font-bold">EN</span>
+                  <Delivery size={16} className="text-white" />
                 </div>
                 <span>Entregas</span>
               </a>
               
               <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent">
                 <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                  <span className="text-xs font-bold">RL</span>
+                  <FileText size={16} className="text-white" />
                 </div>
                 <span>Relatórios</span>
               </a>
