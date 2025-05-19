@@ -1,15 +1,19 @@
+
 import React, { useState } from "react";
-import { Search, Menu, Bell, RefreshCcw, X, Truck, Package } from "lucide-react";
+import { Search, Menu, Bell, RefreshCcw, X, Truck, Package, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
+
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
   return <div className="h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -19,11 +23,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               <Menu size={20} />
             </button>
             <div className="flex items-center">
-              <div className="flex items-center justify-center bg-gradient-to-r from-transport-blue to-transport-blue-dark p-1 rounded-md mr-2">
-                <Truck size={22} className="text-white" />
-                <Package size={14} className="text-white ml-[-8px] mt-[-8px]" />
+              <div className="relative">
+                {/* Updated logo design */}
+                <div className="flex items-center justify-center bg-gradient-to-br from-transport-blue-light to-transport-blue-dark p-2 rounded-lg mr-2 relative overflow-hidden shadow-md">
+                  <Globe size={10} className="absolute top-1 left-1 text-blue-200 opacity-70" />
+                  <Truck size={20} className="text-white relative z-10" />
+                  <Package size={12} className="text-white absolute right-1 bottom-1 z-20" />
+                  <div className="absolute inset-0 bg-white opacity-20 rounded-full scale-0 origin-center transition-transform group-hover:scale-100"></div>
+                </div>
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">LogTracker</h1>
+              <h1 className="text-xl font-bold">
+                <span className="bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Log</span>
+                <span className="text-gray-800">Tracker</span>
+              </h1>
             </div>
           </div>
           
@@ -99,4 +111,5 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
     </div>;
 };
+
 export default DashboardLayout;
