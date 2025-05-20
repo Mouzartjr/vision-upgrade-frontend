@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Download, Filter, RefreshCcw, ListFilter, FileText, Tag, Calendar, Search } from 'lucide-react';
+import { ArrowUpDown, Download, Filter, RefreshCcw, ListFilter, FileText, Tag, Calendar, Search, MapPin, ListOrdered } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -216,15 +216,15 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
     {
       title: "Localização",
       columns: [
-        { key: 'state', label: 'UF', filterable: true, filterKey: 'state', icon: <Tag size={14} className="mr-1" /> },
-        { key: 'city', label: 'Município', icon: <FileText size={14} className="mr-1" /> },
+        { key: 'state', label: 'UF', filterable: true, filterKey: 'state', icon: <MapPin size={14} className="mr-1" /> },
+        { key: 'city', label: 'Município', icon: <MapPin size={14} className="mr-1" /> },
       ]
     },
     {
       title: "Pedido",
       columns: [
-        { key: 'orderNumber', label: 'Número Pedido', sortable: true, icon: <Tag size={14} className="mr-1" /> },
-        { key: 'type', label: 'Tipo', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'orderNumber', label: 'Número Pedido', sortable: true, icon: <ListOrdered size={14} className="mr-1" /> },
+        { key: 'type', label: 'Tipo', icon: <FileText size={14} className="mr-1" /> },
         { key: 'statusDescription', label: 'Status', filterable: true, filterKey: 'status', icon: <Calendar size={14} className="mr-1" /> },
         { key: 'invoiceNumber', label: 'Número Nota', icon: <FileText size={14} className="mr-1" /> },
         { key: 'suspensionCode', label: 'Código Suspensão', icon: <Tag size={14} className="mr-1" /> },
