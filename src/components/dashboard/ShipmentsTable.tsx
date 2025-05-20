@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowUpDown, Download, Filter, RefreshCcw, ListFilter } from 'lucide-react';
+import { ArrowUpDown, Download, Filter, RefreshCcw, ListFilter, FileText, Tag, Calendar, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -202,6 +203,46 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
 
   const hasActiveFilters = Object.values(filters).some(arr => arr.length > 0) || searchQuery.trim() !== '';
 
+  // Group headers by category
+  const tableColumnGroups = [
+    {
+      title: "Informações do Cliente",
+      columns: [
+        { key: 'clientId', label: 'ID Cliente', sortable: true, icon: <Tag size={14} className="mr-1" /> },
+        { key: 'clientName', label: 'Razão Social', sortable: true, icon: <FileText size={14} className="mr-1" /> },
+        { key: 'segment', label: 'Segmento', filterable: true, filterKey: 'segment', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'business', label: 'Business', filterable: true, filterKey: 'business', icon: <FileText size={14} className="mr-1" /> },
+      ]
+    },
+    {
+      title: "Localização",
+      columns: [
+        { key: 'state', label: 'UF', filterable: true, filterKey: 'state', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'city', label: 'Município', icon: <FileText size={14} className="mr-1" /> },
+      ]
+    },
+    {
+      title: "Pedido",
+      columns: [
+        { key: 'orderNumber', label: 'Número Pedido', sortable: true, icon: <Tag size={14} className="mr-1" /> },
+        { key: 'type', label: 'Tipo', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'statusDescription', label: 'Status', filterable: true, filterKey: 'status', icon: <Calendar size={14} className="mr-1" /> },
+        { key: 'invoiceNumber', label: 'Número Nota', icon: <FileText size={14} className="mr-1" /> },
+        { key: 'suspensionCode', label: 'Código Suspensão', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'description', label: 'Descrição', icon: <FileText size={14} className="mr-1" /> },
+      ]
+    },
+    {
+      title: "Valores",
+      columns: [
+        { key: 'freight', label: 'Frete', sortable: true, align: 'right', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'discount', label: 'Desconto', align: 'right', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'grossPrice', label: 'Preço Bruto', sortable: true, align: 'right', icon: <Tag size={14} className="mr-1" /> },
+        { key: 'netWeight', label: 'Peso Líquido', sortable: true, align: 'right', icon: <Tag size={14} className="mr-1" /> },
+      ]
+    },
+  ];
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -213,7 +254,7 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
             className="pl-10 bg-gray-50 border-gray-200"
           />
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <Filter size={16} />
+            <Search size={16} />
           </div>
         </div>
         <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
@@ -242,127 +283,59 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
+            {/* Group headers */}
+            <TableRow className="bg-gray-100 hover:bg-gray-100 border-b-0">
+              {tableColumnGroups.map((group, groupIndex) => (
+                <TableHead 
+                  key={`group-${groupIndex}`}
+                  colSpan={group.columns.length}
+                  className="text-center font-semibold text-xs text-gray-600 uppercase tracking-wider py-2 border-r border-gray-200 last:border-r-0"
+                >
+                  {group.title}
+                </TableHead>
+              ))}
+            </TableRow>
+            
+            {/* Individual column headers */}
             <TableRow className="bg-gray-50 hover:bg-gray-50">
-              <TableHead className="font-medium" onClick={() => handleSort('clientId')}>
-                <div className="flex items-center justify-between">
-                  <span>ID Cliente</span>
-                  {sortField === 'clientId' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="font-medium" onClick={() => handleSort('clientName')}>
-                <div className="flex items-center justify-between">
-                  <span>Razão Social</span>
-                  {sortField === 'clientName' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <div className="flex items-center justify-between">
-                  <span>Segmento</span>
-                  <FilterDropdown 
-                    title="Segmento"
-                    options={filterOptions.segment}
-                    selectedOptions={filters.segment}
-                    onSelectionChange={(value) => handleFilterChange('segment', value)}
-                    onClearFilters={() => clearColumnFilters('segment')}
-                  />
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <div className="flex items-center justify-between">
-                  <span>Business</span>
-                  <FilterDropdown 
-                    title="Business"
-                    options={filterOptions.business}
-                    selectedOptions={filters.business}
-                    onSelectionChange={(value) => handleFilterChange('business', value)}
-                    onClearFilters={() => clearColumnFilters('business')}
-                  />
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <div className="flex items-center justify-between">
-                  <span>UF</span>
-                  <FilterDropdown 
-                    title="UF"
-                    options={filterOptions.state}
-                    selectedOptions={filters.state}
-                    onSelectionChange={(value) => handleFilterChange('state', value)}
-                    onClearFilters={() => clearColumnFilters('state')}
-                  />
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <span>Município</span>
-              </TableHead>
-              <TableHead className="font-medium" onClick={() => handleSort('orderNumber')}>
-                <div className="flex items-center justify-between">
-                  <span>Número Pedido</span>
-                  {sortField === 'orderNumber' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <span>Tipo</span>
-              </TableHead>
-              <TableHead className="font-medium">
-                <div className="flex items-center justify-between">
-                  <span>Status</span>
-                  <FilterDropdown 
-                    title="Status"
-                    options={filterOptions.status}
-                    selectedOptions={filters.status}
-                    onSelectionChange={(value) => handleFilterChange('statusDescription', value)}
-                    onClearFilters={() => clearColumnFilters('status')}
-                  />
-                </div>
-              </TableHead>
-              <TableHead className="font-medium">
-                <span>Número Nota</span>
-              </TableHead>
-              <TableHead className="font-medium">
-                <span>Código Suspensão</span>
-              </TableHead>
-              <TableHead className="font-medium">
-                <span>Descrição</span>
-              </TableHead>
-              <TableHead className="font-medium text-right" onClick={() => handleSort('freight')}>
-                <div className="flex items-center justify-between">
-                  <span>Frete</span>
-                  {sortField === 'freight' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="font-medium text-right">
-                <span>Desconto</span>
-              </TableHead>
-              <TableHead className="font-medium text-right" onClick={() => handleSort('grossPrice')}>
-                <div className="flex items-center justify-between">
-                  <span>Preço Bruto</span>
-                  {sortField === 'grossPrice' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className="font-medium text-right" onClick={() => handleSort('netWeight')}>
-                <div className="flex items-center justify-between">
-                  <span>Peso Líquido</span>
-                  {sortField === 'netWeight' && (
-                    <ArrowUpDown size={14} className="ml-1 inline" />
-                  )}
-                </div>
-              </TableHead>
+              {tableColumnGroups.flatMap((group, groupIndex) => 
+                group.columns.map((column, columnIndex) => (
+                  <TableHead 
+                    key={`col-${column.key}`} 
+                    className={`font-medium text-xs py-3 border-r border-gray-200 last:border-r-0 ${column.align === 'right' ? 'text-right' : 'text-left'}`}
+                    onClick={() => column.sortable ? handleSort(column.key as keyof Shipment) : undefined}
+                  >
+                    <div className={`flex items-center ${column.align === 'right' ? 'justify-end' : 'justify-between'}`}>
+                      <div className="flex items-center">
+                        {column.icon}
+                        <span>{column.label}</span>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        {column.sortable && sortField === column.key && (
+                          <ArrowUpDown size={14} className="ml-1 inline" />
+                        )}
+                        
+                        {column.filterable && (
+                          <FilterDropdown 
+                            title={column.label}
+                            options={filterOptions[column.filterKey as keyof typeof filterOptions]}
+                            selectedOptions={filters[column.filterKey]}
+                            onSelectionChange={(value) => handleFilterChange(column.filterKey, value)}
+                            onClearFilters={() => clearColumnFilters(column.filterKey)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </TableHead>
+                ))
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={16} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={tableColumnGroups.reduce((acc, group) => acc + group.columns.length, 0)} className="text-center py-8 text-gray-500">
                   Carregando dados...
                 </TableCell>
               </TableRow>
@@ -392,7 +365,7 @@ const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments: initialShipm
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={16} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={tableColumnGroups.reduce((acc, group) => acc + group.columns.length, 0)} className="text-center py-8 text-gray-500">
                   Nenhum pedido encontrado
                 </TableCell>
               </TableRow>
