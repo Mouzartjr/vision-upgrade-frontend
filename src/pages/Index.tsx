@@ -38,13 +38,13 @@ const Index: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-6">
         {/* Add the banner at the top */}
         <DashboardBanner />
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-transport-blue bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Dashboard de Transportes</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-transport-blue bg-gradient-to-r from-transport-blue to-transport-blue-dark bg-clip-text text-transparent">Dashboard de Transportes</h1>
             <p className="text-gray-500 mt-1">Acompanhe todos os seus pedidos e entregas em um só lugar</p>
           </div>
           
