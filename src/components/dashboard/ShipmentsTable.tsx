@@ -34,6 +34,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { Shipment } from '@/types/shipment';
 import { getAllShipments, searchShipments, sortShipments } from '@/services/shipmentService';
